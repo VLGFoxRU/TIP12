@@ -53,26 +53,54 @@ pz11-notes-api/
 
 # Фрагменты аннотаций
 
-Аннотации размещаются перед функциями, описывающими обработчики запросов.
-Пример:
 ```
-// GetNote godoc
-// @Summary      Получить заметку по ID
-// @Description  Возвращает данные заметки по указанному идентификатору
-// @Tags         notes
-// @Param        id   path   int  true  "Идентификатор заметки"
-// @Success      200  {object}  core.Note
-// @Failure      404  {object}  map[string]string
-// @Router       /notes/{id} [get]
-func (h *Handlers) GetNote(w http.ResponseWriter, r *http.Request) { ... }
+// CreateNote godoc
+// @Summary Создать новую заметку
+// @Description Создаёт и сохраняет новую заметку в системе
+// @Tags notes
+// @Accept json
+// @Produce json
+// @Param input body core.CreateNoteRequest true "Данные новой заметки"
+// @Success 201 {object} core.Note "Заметка успешно создана"
+// @Failure 400 {object} map[string]string "Некорректные данные (пустые поля)"
+// @Failure 500 {object} map[string]string "Ошибка при создании заметки"
+// @Router /notes [post]
+func (h *NoteHandler) CreateNote(w http.ResponseWriter, r *http.Request)
 ```
-Ключевые директивы:
-	@Summary, @Description — краткое и полное описание метода;
-	@Tags — группировка по разделам;
-	@Param — описание параметров (путь, тело, query-параметры);
-	@Success, @Failure — описание кодов ответов и типов данных;
-	@Router — маршрут и метод HTTP;
-	@Security — используемая схема аутентификации (например, Bearer JWT).
+
+```
+// GetAllNotes godoc
+// @Summary Получить список всех заметок
+// @Description Возвращает список всех заметок с поддержкой пагинации и фильтра по названию
+// @Tags notes
+// @Produce json
+// @Param page query int false "Номер страницы (по умолчанию 1)" default(1)
+// @Param limit query int false "Размер страницы (по умолчанию 10)" default(10)
+// @Param q query string false "Поиск по названию (title)"
+// @Success 200 {array} core.Note "Список заметок"
+// @Header 200 {integer} X-Total-Count "Общее количество заметок в системе"
+// @Failure 400 {object} map[string]string "Некорректные параметры пагинации"
+// @Failure 500 {object} map[string]string "Ошибка сервера"
+// @Router /notes [get]
+func (h *NoteHandler) GetAllNotes(w http.ResponseWriter, r *http.Request)
+```
+
+```
+// UpdateNote godoc
+// @Summary Обновить заметку (частичное обновление)
+// @Description Обновляет один или несколько полей заметки. Поля, не указанные в запросе, не изменяются
+// @Tags notes
+// @Accept json
+// @Produce json
+// @Param id path int true "Идентификатор заметки для обновления"
+// @Param input body core.UpdateNoteRequest true "Поля для обновления (все опциональны)"
+// @Success 200 {object} core.Note "Заметка успешно обновлена"
+// @Failure 400 {object} map[string]string "Некорректный ID или тело запроса"
+// @Failure 404 {object} map[string]string "Заметка не найдена"
+// @Failure 500 {object} map[string]string "Ошибка при обновлении заметки"
+// @Router /notes/{id} [patch]
+func (h *NoteHandler) UpdateNote(w http.ResponseWriter, r *http.Request)
+```
 
 # Скриншоты
 
