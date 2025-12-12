@@ -1,0 +1,232 @@
+basePath: /api/v1
+definitions:
+  core.CreateNoteRequest:
+    properties:
+      content:
+        type: string
+      title:
+        type: string
+    type: object
+  core.Note:
+    properties:
+      content:
+        type: string
+      createdAt:
+        type: string
+      id:
+        type: integer
+      title:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  core.UpdateNoteRequest:
+    properties:
+      content:
+        type: string
+      title:
+        type: string
+    type: object
+info:
+  contact:
+    email: example@university.ru
+    name: Backend Course
+  description: Учебный REST API для заметок (CRUD).
+  title: Notes API
+  version: "1.0"
+paths:
+  /notes:
+    get:
+      description: Возвращает список всех заметок с поддержкой пагинации и фильтра
+        по названию
+      parameters:
+      - default: 1
+        description: Номер страницы (по умолчанию 1)
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Размер страницы (по умолчанию 10)
+        in: query
+        name: limit
+        type: integer
+      - description: Поиск по названию (title)
+        in: query
+        name: q
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Список заметок
+          headers:
+            X-Total-Count:
+              description: Общее количество заметок в системе
+              type: integer
+          schema:
+            items:
+              $ref: '#/definitions/core.Note'
+            type: array
+        "400":
+          description: Некорректные параметры пагинации
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Получить список всех заметок
+      tags:
+      - notes
+    post:
+      consumes:
+      - application/json
+      description: Создаёт и сохраняет новую заметку в системе
+      parameters:
+      - description: Данные новой заметки
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/core.CreateNoteRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Заметка успешно создана
+          schema:
+            $ref: '#/definitions/core.Note'
+        "400":
+          description: Некорректные данные (пустые поля)
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Ошибка при создании заметки
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Создать новую заметку
+      tags:
+      - notes
+  /notes/{id}:
+    delete:
+      description: Удаляет заметку из системы по её идентификатору. Операция необратима
+      parameters:
+      - description: Идентификатор заметки для удаления
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: Заметка успешно удалена (No Content)
+        "400":
+          description: Некорректный формат ID
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Заметка не найдена
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Ошибка при удалении заметки
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Удалить заметку
+      tags:
+      - notes
+    get:
+      description: Возвращает полную информацию о конкретной заметке по её идентификатору
+      parameters:
+      - description: Идентификатор заметки
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Заметка найдена
+          schema:
+            $ref: '#/definitions/core.Note'
+        "400":
+          description: Некорректный формат ID
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Заметка не найдена
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Ошибка сервера
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Получить заметку по ID
+      tags:
+      - notes
+    patch:
+      consumes:
+      - application/json
+      description: Обновляет один или несколько полей заметки. Поля, не указанные
+        в запросе, не изменяются
+      parameters:
+      - description: Идентификатор заметки для обновления
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Поля для обновления (все опциональны)
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/core.UpdateNoteRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Заметка успешно обновлена
+          schema:
+            $ref: '#/definitions/core.Note'
+        "400":
+          description: Некорректный ID или тело запроса
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Заметка не найдена
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Ошибка при обновлении заметки
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Обновить заметку (частичное обновление)
+      tags:
+      - notes
+swagger: "2.0"
